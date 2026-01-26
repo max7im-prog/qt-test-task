@@ -1,5 +1,9 @@
 #include "fileScheduler.hpp"
+#include "fileModifier.hpp"
+#include <QDir>
+#include <QDirIterator>
 #include <chrono>
+#include <qcontainerfwd.h>
 #include <qmutex.h>
 
 FileScheduler::FileScheduler(const Task &task, QObject *parent)
@@ -16,7 +20,69 @@ void FileScheduler::onSetTask(const Task &task) {
 }
 
 void FileScheduler::processQuery() {
-  // TODO: implement
+  QMutexLocker lock(&_taskAccessMutex);
+
+  QDir fromDir(_task._fromDirectory);
+  if (!fromDir.exists()) {
+    emit showUserInfo("No directory named " + fromDir.dirName() + " exists");
+    return;
+  }
+  QDir toDir(_task._toDirectory);
+  if (!toDir.exists()) {
+    emit showUserInfo("No directory named " + toDir.dirName() + " exists");
+    return;
+  }
+
+  // Apply file mask
+  QStringList masks = _task._inputFileMask.split(';', Qt::SkipEmptyParts);
+  QDirIterator it(fromDir.absolutePath(), masks,
+                  QDir::Files | QDir::NoDotAndDotDot,
+                  QDirIterator::NoIteratorFlags);
+  while (it.hasNext()) {
+    it.next();
+    QString inputFilePath = it.filePath();
+    if (_activeFiles.contains(inputFilePath)) {
+      continue; // File is already being processed, pass
+    }
+
+    auto inputFileInfo = it.fileInfo();
+    QString fileName = inputFileInfo.fileName();
+    QString outputFilePath = toDir.filePath(inputFileInfo.fileName());
+
+    // Solve file conflicts
+    if (QFile::exists(outputFilePath)) {
+      switch (_task._fileRepeatAction) {
+      case FileScheduler::Task::FileRepeatAction::Copy: { // Add a counter to
+                                                          // the file name
+        int counter = 1;
+        QString basename = inputFileInfo.completeBaseName();
+        QString ext = inputFileInfo.suffix();
+        QString newName;
+        do {
+          newName = QString("%1_%2.%3").arg(basename).arg(counter++).arg(ext);
+          outputFilePath = toDir.filePath(newName);
+        } while (QFile::exists(newName));
+        break;
+      }
+      case FileScheduler::Task::FileRepeatAction::Pass: { // Move to the next
+                                                          // iteration
+        continue;
+        break;
+      }
+      case FileScheduler::Task::FileRepeatAction::Rewrite: { // Just overwrite
+        break;
+      }
+      }
+    }
+
+    // Prepare FileModifier task
+    FileModifier::Task modifierTask;
+    modifierTask._byteMask = _task._byteMask;
+    modifierTask._fromPath = inputFilePath;
+    modifierTask._toPath = outputFilePath;
+
+    scheduleModifier(modifierTask);
+  }
 }
 
 void FileScheduler::applyTask() {
@@ -42,10 +108,13 @@ void FileScheduler::onTimer() { processQuery(); }
 
 void FileScheduler::onModifierProgress(const FileModifier::Progress &progress) {
   emit showUserInfo(progress._info);
-  // TODO: complete
 }
 
 void FileScheduler::onModifierFinished(const FileModifier::Progress &progress) {
-  _runningThreads--;
+  --_runningThreads;
   emit showUserInfo(progress._info);
+}
+
+void scheduleModifier(const FileModifier::Task &task) {
+  // TODO: implement
 }

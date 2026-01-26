@@ -2,8 +2,10 @@
 #include "fileModifier.hpp"
 #include <QMutex>
 #include <QObject>
+#include <QSet>
 #include <QTimer>
 #include <qobject.h>
+#include <qstringview.h>
 #include <qtmetamacros.h>
 
 class FileScheduler : public QObject {
@@ -12,6 +14,7 @@ class FileScheduler : public QObject {
 public:
   struct Task {
     bool _run;
+    QByteArray _byteMask;
     QString _inputFileMask;
     QString _fromDirectory;
     QString _toDirectory;
@@ -24,12 +27,15 @@ public:
   Task getTask() const;
 
 private:
+  void applyTask();
+  void processQuery();
+  void scheduleModifier(const FileModifier::Task &task);
+
   Task _task;
   QMutex _taskAccessMutex;
   QTimer _queryTimer;
   int _runningThreads;
-  void applyTask();
-  void processQuery();
+  QSet<QString> _activeFiles;
 
 public slots:
   void onTimer();
