@@ -2,7 +2,10 @@
 #include <iostream>
 
 int main() {
-  QObject a;
-  std::cout << "Hello world!" << std::endl;
+  std::atomic<bool> running = true;
+
+  while (running) {
+  }
+
   return 0;
 }
