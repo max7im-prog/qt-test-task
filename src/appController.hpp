@@ -30,7 +30,7 @@ public:
   const QString &getInputDir() const;
   const QString &getOutputDir() const;
   const QString &getFileMask() const;
-  const QString &getByteMask() const;
+  QString getByteMask() const;
   int getQueryIntervalMs() const;
   bool getSingleShot() const;
 
@@ -46,7 +46,7 @@ signals:
   void statusChanged();
   void inputDirChanged();
   void outputDirChanged();
-  void fileMasChanged();
+  void fileMaskChanged();
   void byteMaskChanged();
   void queryIntervalMsChanged();
   void singleShotChanged();
@@ -57,7 +57,7 @@ private:
   QString _inputDir;
   QString _outputDir;
   QString _fileMask;
-  QString _byteMask;
+  QByteArray _byteMask;
   int _queryIntervalMs;
   bool _singleShot;
 };

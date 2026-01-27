@@ -25,7 +25,8 @@ public:
     int _chunkSizeBytes;
   };
   explicit FileScheduler(const Task &task, QObject *parent = nullptr);
-  Task getTask() const;
+  const Task &getTask() const;
+  void setTask(const Task &task);
 
 private:
   void applyTask();
@@ -38,9 +39,10 @@ private:
   int _runningThreads;
   QSet<QString> _activeFiles;
 
-public slots:
+private slots:
   void onTimer();
-  void onSetTask(const Task &task);
+
+public slots:
   void onModifierProgress(const FileModifier::Progress &progress);
   void onModifierFinished(const FileModifier::Progress &progress);
 

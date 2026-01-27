@@ -1,23 +1,18 @@
-#include "src/appController.hpp"
+#include "appController.hpp"
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-#include <qdebug.h>
-#include <qqmlapplicationengine.h>
 
 int main(int argc, char *argv[]) {
-
   QGuiApplication app(argc, argv);
+
+  AppController *controller = new AppController(&app);
+
+  qmlRegisterSingletonInstance("custom.AppController", 1, 0, "AppController",
+                               controller);
+
   QQmlApplicationEngine engine;
-
-  AppController controller;
-  engine.rootContext()->setContextProperty("app", &controller);
-
   engine.loadFromModule("App", "Main");
-
-  if (engine.rootObjects().isEmpty()) {
-    return -1;
-  }
 
   return app.exec();
 }

@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import custom.AppController
 
 ApplicationWindow {
     id: root
@@ -24,6 +25,8 @@ ApplicationWindow {
             TextField {
                 placeholderText: "Input directory"
                 Layout.fillWidth: true
+                text: AppController.inputDir
+                onTextChanged: AppController.inputDir = text
             }
 
             TextField {
@@ -48,6 +51,7 @@ ApplicationWindow {
                     text: "Start"
                     Layout.fillWidth: true
                     // onClicked: scheduler.start()
+                    onClicked: AppController.start()
                 }
 
                 Button {

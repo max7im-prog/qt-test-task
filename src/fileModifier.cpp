@@ -5,8 +5,8 @@
 #include <qobject.h>
 
 namespace {
-static constexpr int c_minChunkSizeBytes = 64;
-static constexpr int c_maxChunkSizeBytes = 1024 * 1024; // 1 MB
+static constexpr int s_minChunkSizeBytes = 64;
+static constexpr int s_maxChunkSizeBytes = 1024 * 1024; // 1 MB
 } // namespace
 
 FileModifier::FileModifier(const Task &task, QObject *parent)
@@ -29,8 +29,8 @@ void FileModifier::onProcess() {
     return;
   }
 
-  int chunkSize = qMin(qMax(c_minChunkSizeBytes, _task._chunkSizeBytes),
-                       c_maxChunkSizeBytes);
+  int chunkSize = qMin(qMax(s_minChunkSizeBytes, _task._chunkSizeBytes),
+                       s_maxChunkSizeBytes);
 
   QByteArray fileBuffer;
   fileBuffer.resize(chunkSize);

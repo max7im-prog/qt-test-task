@@ -15,13 +15,15 @@ FileScheduler::FileScheduler(const Task &task, QObject *parent)
                    &FileScheduler::onTimer);
 }
 
-void FileScheduler::onSetTask(const Task &task) {
+void FileScheduler::setTask(const Task &task) {
   {
     QMutexLocker lock(&_taskAccessMutex);
     _task = task;
   }
   applyTask();
 }
+
+const FileScheduler::Task &FileScheduler::getTask() const { return _task; }
 
 void FileScheduler::processQuery() {
   QMutexLocker lock(&_taskAccessMutex);
