@@ -2,13 +2,17 @@
 #include "fileModifier.hpp"
 #include <QDir>
 #include <QDirIterator>
+#include <QThread>
 #include <chrono>
 #include <qcontainerfwd.h>
+#include <qlogging.h>
 #include <qmutex.h>
 
 FileScheduler::FileScheduler(const Task &task, QObject *parent)
     : QObject(parent), _task(task), _runningThreads(0) {
   applyTask();
+  QObject::connect(&_queryTimer, &QTimer::timeout, this,
+                   &FileScheduler::onTimer);
 }
 
 void FileScheduler::onSetTask(const Task &task) {
@@ -104,7 +108,11 @@ void FileScheduler::applyTask() {
   }
 }
 
-void FileScheduler::onTimer() { processQuery(); }
+void FileScheduler::onTimer() {
+  qInfo().noquote() << "timer" << "\n";
+
+  processQuery();
+}
 
 void FileScheduler::onModifierProgress(const FileModifier::Progress &progress) {
   emit showUserInfo(progress._info);
@@ -115,6 +123,27 @@ void FileScheduler::onModifierFinished(const FileModifier::Progress &progress) {
   emit showUserInfo(progress._info);
 }
 
-void scheduleModifier(const FileModifier::Task &task) {
-  // TODO: implement
+void FileScheduler::scheduleModifier(const FileModifier::Task &task) {
+  QThread *workerThread = new QThread(this);
+  FileModifier *worker = new FileModifier(task);
+  worker->moveToThread(workerThread);
+
+  // Lifetime of a worker
+  QObject::connect(workerThread, &QThread::started, worker,
+                   &FileModifier::onProcess);
+  QObject::connect(worker, &FileModifier::finished, workerThread,
+                   &QThread::quit);
+  QObject::connect(worker, &FileModifier::finished, worker,
+                   &QObject::deleteLater);
+  QObject::connect(workerThread, &QThread::finished, workerThread,
+                   &QObject::deleteLater);
+
+  // Translate info from workers
+  QObject::connect(worker, &FileModifier::finished, this,
+                   &FileScheduler::onModifierFinished);
+  QObject::connect(worker, &FileModifier::progress, this,
+                   &FileScheduler::onModifierProgress);
+
+  ++_runningThreads;
+  workerThread->start();
 }

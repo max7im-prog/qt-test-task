@@ -13,6 +13,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_standard_project_setup()
 
-qt_add_executable(qt-test-task src/main.cpp)
+qt_add_executable(qt-test-task src/main.cpp src/fileModifier.cpp
+                  src/fileScheduler.cpp)
 
 target_link_libraries(qt-test-task PRIVATE Qt6::Core)
