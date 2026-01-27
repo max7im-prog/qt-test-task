@@ -18,7 +18,7 @@ public:
     QString _inputFileMask;
     QString _fromDirectory;
     QString _toDirectory;
-    enum class FileRepeatAction { Rewrite, Pass, Copy } _fileRepeatAction;
+    enum class FileRepeatAction { Overwrite, Pass, Copy } _fileRepeatAction;
     std::chrono::milliseconds _queryInterval;
     bool _singleShot;
     int _maxconcurrentProcesses;

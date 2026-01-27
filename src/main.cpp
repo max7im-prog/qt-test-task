@@ -1,25 +1,23 @@
-#include "fileScheduler.hpp"
-#include <QCoreApplication>
+#include "src/appController.hpp"
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <qdebug.h>
+#include <qqmlapplicationengine.h>
 
 int main(int argc, char *argv[]) {
 
-  QCoreApplication app(argc, argv);
+  QGuiApplication app(argc, argv);
+  QQmlApplicationEngine engine;
 
-  FileScheduler::Task task;
-  task._run = true;
-  task._fromDirectory = "./input";
-  task._toDirectory = "./output";
-  task._inputFileMask = "*.bin;*.txt";
-  task._fileRepeatAction = FileScheduler::Task::FileRepeatAction::Copy;
-  task._queryInterval = std::chrono::milliseconds(3000);
-  task._singleShot = false;
-  task._byteMask = QByteArray::fromHex("0102030405060708");
+  AppController controller;
+  engine.rootContext()->setContextProperty("app", &controller);
 
-  FileScheduler scheduler{task};
+  engine.loadFromModule("App", "Main");
 
-  QObject::connect(&scheduler, &FileScheduler::showUserInfo,
-                   [](const QString &info) { qInfo().noquote() << info; });
+  if (engine.rootObjects().isEmpty()) {
+    return -1;
+  }
 
   return app.exec();
 }

@@ -73,7 +73,7 @@ void FileScheduler::processQuery() {
         continue;
         break;
       }
-      case FileScheduler::Task::FileRepeatAction::Rewrite: { // Just overwrite
+      case FileScheduler::Task::FileRepeatAction::Overwrite: { // Just overwrite
         break;
       }
       }
