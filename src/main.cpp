@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
   task._toDirectory = "./output";
   task._inputFileMask = "*.bin;*.txt";
   task._fileRepeatAction = FileScheduler::Task::FileRepeatAction::Copy;
-  task._queryInterval = std::chrono::milliseconds(1000);
+  task._queryInterval = std::chrono::milliseconds(3000);
   task._singleShot = false;
   task._byteMask = QByteArray::fromHex("0102030405060708");
 

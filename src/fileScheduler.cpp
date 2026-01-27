@@ -65,7 +65,7 @@ void FileScheduler::processQuery() {
         do {
           newName = QString("%1_%2.%3").arg(basename).arg(counter++).arg(ext);
           outputFilePath = toDir.filePath(newName);
-        } while (QFile::exists(newName));
+        } while (QFile::exists(outputFilePath));
         break;
       }
       case FileScheduler::Task::FileRepeatAction::Pass: { // Move to the next
@@ -84,6 +84,7 @@ void FileScheduler::processQuery() {
     modifierTask._byteMask = _task._byteMask;
     modifierTask._fromPath = inputFilePath;
     modifierTask._toPath = outputFilePath;
+    modifierTask._chunkSizeBytes = _task._chunkSizeBytes;
 
     scheduleModifier(modifierTask);
   }
@@ -108,11 +109,7 @@ void FileScheduler::applyTask() {
   }
 }
 
-void FileScheduler::onTimer() {
-  qInfo().noquote() << "timer" << "\n";
-
-  processQuery();
-}
+void FileScheduler::onTimer() { processQuery(); }
 
 void FileScheduler::onModifierProgress(const FileModifier::Progress &progress) {
   emit showUserInfo(progress._info);

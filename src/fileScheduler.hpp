@@ -22,6 +22,7 @@ public:
     std::chrono::milliseconds _queryInterval;
     bool _singleShot;
     int _maxconcurrentProcesses;
+    int _chunkSizeBytes;
   };
   explicit FileScheduler(const Task &task, QObject *parent = nullptr);
   Task getTask() const;

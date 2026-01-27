@@ -11,6 +11,7 @@ public:
     QString _fromPath;
     QString _toPath;
     QByteArray _byteMask;
+    int _chunkSizeBytes; // FileModifier processes data in chunks
   };
 
   struct Progress {
