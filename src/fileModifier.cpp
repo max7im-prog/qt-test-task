@@ -16,6 +16,9 @@ void FileModifier::requestStop() { _stopRequested = true; }
 
 void FileModifier::onProcess() {
 
+  qInfo().noquote() << "processing" << "\n";
+  emit progress({._info = "Started modifier"});
+
   QFile fromFile(_task._fromPath);
   QFile toFile(_task._toPath);
 
@@ -26,6 +29,13 @@ void FileModifier::onProcess() {
 
   if (!toFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
     emit finished({._info = "Failed to open output file: " + _task._toPath});
+    return;
+  }
+
+  if (_task._byteMask.size() != 8) {
+    emit finished({._info = "Byte mask of size " +
+                            QString::number(_task._byteMask.size()) +
+                            ", 8 required"});
     return;
   }
 

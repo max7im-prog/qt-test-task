@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QSet>
 #include <QTimer>
+#include <chrono>
 #include <qobject.h>
 #include <qstringview.h>
 #include <qtmetamacros.h>
@@ -13,16 +14,20 @@ class FileScheduler : public QObject {
 
 public:
   struct Task {
-    bool _run;
-    QByteArray _byteMask;
-    QString _inputFileMask;
-    QString _fromDirectory;
-    QString _toDirectory;
-    enum class FileRepeatAction { Overwrite, Pass, Copy } _fileRepeatAction;
-    std::chrono::milliseconds _queryInterval;
-    bool _singleShot;
-    int _maxconcurrentProcesses;
-    int _chunkSizeBytes;
+    bool _run = false;
+    QByteArray _byteMask = QByteArray::fromHex("0011223344556677");
+    QString _inputFileMask = "";
+    QString _fromDirectory = "";
+    QString _toDirectory = "";
+    enum class FileRepeatAction {
+      Overwrite,
+      Pass,
+      Copy
+    } _fileRepeatAction = FileRepeatAction::Copy;
+    std::chrono::milliseconds _queryInterval = std::chrono::milliseconds{1000};
+    bool _singleShot = true;
+    int _maxconcurrentProcesses = 10;
+    int _chunkSizeBytes = 1024 * 256;
   };
   explicit FileScheduler(const Task &task, QObject *parent = nullptr);
   const Task &getTask() const;
@@ -35,7 +40,7 @@ private:
 
   Task _task;
   QMutex _taskAccessMutex;
-  QTimer _queryTimer;
+  QTimer *_queryTimer;
   int _runningThreads;
   QSet<QString> _activeFiles;
 

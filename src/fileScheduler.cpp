@@ -9,9 +9,10 @@
 #include <qmutex.h>
 
 FileScheduler::FileScheduler(const Task &task, QObject *parent)
-    : QObject(parent), _task(task), _runningThreads(0) {
+    : QObject(parent), _task(task), _runningThreads(0),
+      _queryTimer(new QTimer(this)) {
   applyTask();
-  QObject::connect(&_queryTimer, &QTimer::timeout, this,
+  QObject::connect(_queryTimer, &QTimer::timeout, this,
                    &FileScheduler::onTimer);
 }
 
@@ -21,6 +22,7 @@ void FileScheduler::setTask(const Task &task) {
     _task = task;
   }
   applyTask();
+  qInfo().noquote() << "set task" << "\n";
 }
 
 const FileScheduler::Task &FileScheduler::getTask() const { return _task; }
@@ -36,6 +38,12 @@ void FileScheduler::processQuery() {
   QDir toDir(_task._toDirectory);
   if (!toDir.exists()) {
     emit showUserInfo("No directory named " + toDir.dirName() + " exists");
+    return;
+  }
+  if (_task._byteMask.size() != 8) {
+    emit showUserInfo("byte mask of size " +
+                      QString::number(_task._byteMask.size()) +
+                      " bytes, 8 requred");
     return;
   }
 
@@ -94,24 +102,30 @@ void FileScheduler::processQuery() {
 
 void FileScheduler::applyTask() {
   QMutexLocker lock(&_taskAccessMutex);
-  _queryTimer.stop();
-  _queryTimer.setSingleShot(_task._singleShot);
+  _queryTimer->stop();
+  _queryTimer->setSingleShot(_task._singleShot);
 
   if (_task._queryInterval.count() > 0) {
-    _queryTimer.setInterval(_task._queryInterval);
+    _queryTimer->setInterval(_task._queryInterval);
   } else {
-    _queryTimer.setInterval(std::chrono::milliseconds{0});
-    _queryTimer.setSingleShot(true);
+    _queryTimer->setInterval(std::chrono::milliseconds{0});
+    _queryTimer->setSingleShot(true);
     // Fallback to single shot if the duration is negative
     // TODO: maybe change fallback logic
   }
 
   if (_task._run) {
-    _queryTimer.start();
+    _queryTimer->start();
+    qInfo().noquote() << "started timer\n";
   }
 }
 
-void FileScheduler::onTimer() { processQuery(); }
+void FileScheduler::onTimer() {
+
+  qInfo().noquote() << "timer fired, querying\n";
+
+  processQuery();
+}
 
 void FileScheduler::onModifierProgress(const FileModifier::Progress &progress) {
   emit showUserInfo(progress._info);

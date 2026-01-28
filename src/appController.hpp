@@ -1,5 +1,6 @@
 #pragma once
 #include "fileScheduler.hpp"
+#include <chrono>
 #include <qobject.h>
 #include <qtmetamacros.h>
 
@@ -7,6 +8,7 @@ class AppController : public QObject {
   Q_OBJECT
 
   Q_PROPERTY(QString status READ getStatus WRITE setStatus NOTIFY statusChanged)
+  Q_PROPERTY(QString log READ getLog NOTIFY logChanged)
   Q_PROPERTY(QString inputDir READ getInputDir WRITE setInputDir NOTIFY
                  inputDirChanged)
   Q_PROPERTY(QString outputDir READ getOutputDir WRITE setOutputDir NOTIFY
@@ -33,6 +35,7 @@ public:
   QString getByteMask() const;
   int getQueryIntervalMs() const;
   bool getSingleShot() const;
+  const QString &getLog() const;
 
   void setStatus(const QString &param);
   void setInputDir(const QString &param);
@@ -41,8 +44,10 @@ public:
   void setByteMask(const QString &param);
   void setQueryIntervalMs(int param);
   void setSingleShot(bool param);
+  void appendLog(const QString &msg);
 
 signals:
+  void logChanged();
   void statusChanged();
   void inputDirChanged();
   void outputDirChanged();
@@ -53,11 +58,12 @@ signals:
 
 private:
   FileScheduler _scheduler;
-  QString _status;
-  QString _inputDir;
-  QString _outputDir;
-  QString _fileMask;
-  QByteArray _byteMask;
-  int _queryIntervalMs;
-  bool _singleShot;
+  QString _status = "";
+  QString _inputDir = "./input";
+  QString _outputDir = "./output";
+  QString _fileMask = "*.txt";
+  QByteArray _byteMask = QByteArray::fromHex("");
+  int _queryIntervalMs = 1000;
+  bool _singleShot = false;
+  QString _log = "";
 };

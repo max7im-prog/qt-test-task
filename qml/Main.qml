@@ -23,25 +23,31 @@ ApplicationWindow {
             spacing: 8
 
             TextField {
-                placeholderText: "Input directory"
                 Layout.fillWidth: true
+                placeholderText: "Input directory"
                 text: AppController.inputDir
                 onTextChanged: AppController.inputDir = text
             }
 
             TextField {
-                placeholderText: "Output directory"
                 Layout.fillWidth: true
+                placeholderText: "Output directory"
+                text: AppController.outputDir
+                onTextChanged: AppController.outputDir = text
             }
 
             TextField {
                 placeholderText: "File mask (e.g. *.bin;*.txt)"
                 Layout.fillWidth: true
+                text: AppController.fileMask
+                onTextChanged: AppController.fileMask = text
             }
 
             TextField {
                 placeholderText: "XOR key (8 bytes hex, e.g. 0011223344556677)"
                 Layout.fillWidth: true
+                // text: AppController.byteMask
+                onTextChanged: AppController.byteMask = text
             }
 
             RowLayout {
@@ -50,26 +56,25 @@ ApplicationWindow {
                 Button {
                     text: "Start"
                     Layout.fillWidth: true
-                    // onClicked: scheduler.start()
                     onClicked: AppController.start()
                 }
 
                 Button {
                     text: "Stop"
                     Layout.fillWidth: true
-                    // onClicked: scheduler.stop()
+                    onClicked: AppController.stop()
                 }
             }
 
             Label {
-                // text: scheduler.status
+                text: AppController.status
                 Layout.fillWidth: true
                 wrapMode: Text.Wrap
             }
 
             Item {
                 Layout.fillHeight: true
-            } // spacer
+            }
         }
 
         ColumnLayout {
@@ -77,15 +82,19 @@ ApplicationWindow {
             Layout.fillHeight: true
 
             Label {
-                text: "Log"
+                text: "Logs"
             }
 
-            TextArea {
-                id: logArea
-                readOnly: true
-                wrapMode: Text.Wrap
+            ScrollView {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+
+                TextArea {
+                    id: logArea
+                    readOnly: true
+                    wrapMode: Text.Wrap
+                    text: AppController.log
+                }
             }
         }
     }

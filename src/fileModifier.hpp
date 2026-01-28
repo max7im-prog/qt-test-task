@@ -8,10 +8,10 @@ class FileModifier : public QObject {
 
 public:
   struct Task {
-    QString _fromPath;
-    QString _toPath;
-    QByteArray _byteMask;
-    int _chunkSizeBytes; // FileModifier processes data in chunks
+    QString _fromPath = "";
+    QString _toPath = "";
+    QByteArray _byteMask = QByteArray::fromHex("0011223344556677");
+    int _chunkSizeBytes = 256 * 1024; // FileModifier processes data in chunks
   };
 
   struct Progress {

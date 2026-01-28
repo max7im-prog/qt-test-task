@@ -9,10 +9,13 @@ static constexpr int s_defaultMaxConcurrentProcesses = 10;
 } // namespace
 
 AppController::AppController(QObject *parent)
-    : QObject(parent), _scheduler(FileScheduler::Task{._run = false}) {}
+    : QObject(parent), _scheduler(FileScheduler::Task{._run = false}) {
+  QObject::connect(&_scheduler, &FileScheduler::showUserInfo,
+                   [&](const QString &msg) { appendLog(msg); });
+}
 
 void AppController::start() {
-  qInfo().noquote() << "starting" << "\n";
+  qInfo().noquote() << "lol" << "\n";
   FileScheduler::Task task;
   task._fileRepeatAction =
       FileScheduler::Task::FileRepeatAction::Copy; // TODO: change to one that
@@ -49,6 +52,8 @@ int AppController::getQueryIntervalMs() const { return _queryIntervalMs; }
 
 bool AppController::getSingleShot() const { return _singleShot; }
 
+const QString &AppController::getLog() const { return _log; }
+
 void AppController::setStatus(const QString &param) { _status = param; }
 
 void AppController::setInputDir(const QString &param) {
@@ -73,13 +78,6 @@ void AppController::setFileMask(const QString &param) {
 }
 
 void AppController::setByteMask(const QString &param) {
-  // Must be exactly 16 hex characters (0-9, a-f, A-F)
-  static const QRegularExpression re("^[0-9a-fA-F]{16}$");
-
-  if (!re.match(param).hasMatch()) {
-    setStatus("Invalid XOR key: must be exactly 16 hex characters");
-    return;
-  }
 
   QByteArray ba = QByteArray::fromHex(param.toUtf8());
   if (_byteMask == ba)
@@ -101,4 +99,9 @@ void AppController::setSingleShot(bool param) {
     return;
   _singleShot = param;
   emit singleShotChanged();
+}
+
+void AppController::appendLog(const QString &msg) {
+  _log += (msg + "\n");
+  emit logChanged();
 }
