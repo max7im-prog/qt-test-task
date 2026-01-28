@@ -25,7 +25,7 @@ void FileScheduler::setTask(const Task &task) {
   qInfo().noquote() << "set task" << "\n";
 }
 
-const FileScheduler::Task &FileScheduler::getTask() const { return _task; }
+FileScheduler::Task FileScheduler::getTask() const { return _task; }
 
 void FileScheduler::processQuery() {
   QMutexLocker lock(&_taskAccessMutex);
@@ -95,6 +95,7 @@ void FileScheduler::processQuery() {
     modifierTask._fromPath = inputFilePath;
     modifierTask._toPath = outputFilePath;
     modifierTask._chunkSizeBytes = _task._chunkSizeBytes;
+    modifierTask._deleteOnModify = _task._deleteOnModify;
 
     scheduleModifier(modifierTask);
   }
@@ -112,6 +113,9 @@ void FileScheduler::applyTask() {
     _queryTimer->setSingleShot(true);
     // Fallback to single shot if the duration is negative
     // TODO: maybe change fallback logic
+  }
+  if (_task._singleShot) {
+    _queryTimer->setInterval(std::chrono::milliseconds{0});
   }
 
   if (_task._run) {

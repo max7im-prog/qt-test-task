@@ -47,7 +47,7 @@ ApplicationWindow {
             TextField {
                 placeholderText: "XOR key (8 bytes hex, e.g. 0011223344556677)"
                 Layout.fillWidth: true
-                // text: AppController.byteMask
+                text: AppController.byteMask
                 onTextChanged: AppController.byteMask = text
             }
 
@@ -80,12 +80,12 @@ ApplicationWindow {
                 ComboBox {
                     model: [
                         {
-                            value: FileScheduler.Overwrite,
-                            text: qsTr("Overwrite")
-                        },
-                        {
                             value: FileScheduler.Pass,
                             text: qsTr("Pass")
+                        },
+                        {
+                            value: FileScheduler.Overwrite,
+                            text: qsTr("Overwrite")
                         },
                         {
                             value: FileScheduler.Copy,

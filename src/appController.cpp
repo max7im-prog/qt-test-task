@@ -2,6 +2,7 @@
 #include "fileScheduler.hpp"
 #include <QRegularExpression>
 #include <chrono>
+#include <qlogging.h>
 
 namespace {
 static constexpr int s_defaultChunkSizeBytes = 1024 * 256; // 256 kb
@@ -15,13 +16,11 @@ AppController::AppController(QObject *parent)
 }
 
 void AppController::start() {
-  qInfo().noquote() << "lol" << "\n";
   FileScheduler::Task task;
-  task._fileRepeatAction = _fileRepeatAction; // TODO: change to one that
-                                              // was read from GUI
+  task._fileRepeatAction = _fileRepeatAction;
   task._fromDirectory = _inputDir;
   task._toDirectory = _outputDir;
-  task._byteMask = _byteMask;
+  task._byteMask = QByteArray::fromHex(_byteMask.toUtf8());
   task._maxconcurrentProcesses = s_defaultMaxConcurrentProcesses;
   task._chunkSizeBytes = s_defaultChunkSizeBytes;
   task._queryInterval = std::chrono::milliseconds{_queryIntervalMs};
@@ -46,7 +45,7 @@ const QString &AppController::getOutputDir() const { return _outputDir; }
 
 const QString &AppController::getFileMask() const { return _fileMask; }
 
-QString AppController::getByteMask() const { return _byteMask.toHex(); }
+const QString &AppController::getByteMask() const { return _byteMask; }
 
 int AppController::getQueryIntervalMs() const { return _queryIntervalMs; }
 
@@ -79,11 +78,10 @@ void AppController::setFileMask(const QString &param) {
 
 void AppController::setByteMask(const QString &param) {
 
-  QByteArray ba = QByteArray::fromHex(param.toUtf8());
-  if (_byteMask == ba)
+  if (_byteMask == param)
     return;
 
-  _byteMask = ba;
+  _byteMask = param;
   emit byteMaskChanged();
 }
 

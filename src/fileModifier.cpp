@@ -59,6 +59,14 @@ void FileModifier::onProcess() {
     toFile.write(fileBuffer.constData(), bytesRead);
   }
 
+  if (_task._deleteOnModify) {
+    qInfo().noquote() << "deleting " << _task._fromPath << "\n";
+    fromFile.close();
+    if (fromFile.exists()) {
+
+      fromFile.remove();
+    }
+  }
   emit finished(
       {._info = "Modified " + _task._fromPath + " >> " + _task._toPath});
 }

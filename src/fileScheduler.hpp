@@ -23,7 +23,7 @@ public:
     QString _inputFileMask = "";
     QString _fromDirectory = "";
     QString _toDirectory = "";
-    FileRepeatAction _fileRepeatAction = FileRepeatAction::Copy;
+    FileRepeatAction _fileRepeatAction = FileRepeatAction::Pass;
 
     std::chrono::milliseconds _queryInterval = std::chrono::milliseconds{1000};
     bool _singleShot = true;
@@ -31,7 +31,7 @@ public:
     int _chunkSizeBytes = 1024 * 256;
   };
   explicit FileScheduler(const Task &task, QObject *parent = nullptr);
-  const Task &getTask() const;
+  Task getTask() const;
   void setTask(const Task &task);
 
 private:

@@ -37,7 +37,7 @@ public:
   const QString &getInputDir() const;
   const QString &getOutputDir() const;
   const QString &getFileMask() const;
-  QString getByteMask() const;
+  const QString &getByteMask() const;
   int getQueryIntervalMs() const;
   bool getSingleShot() const;
   const QString &getLog() const;
@@ -73,7 +73,7 @@ private:
   QString _inputDir{"./input"};
   QString _outputDir{"./output"};
   QString _fileMask{"*.txt"};
-  QByteArray _byteMask{QByteArray::fromHex("")};
+  QString _byteMask{""};
   int _queryIntervalMs{1000};
   bool _singleShot{false};
   QString _log{""};
