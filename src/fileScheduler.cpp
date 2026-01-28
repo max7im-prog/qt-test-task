@@ -9,8 +9,8 @@
 #include <qmutex.h>
 
 FileScheduler::FileScheduler(const Task &task, QObject *parent)
-    : QObject(parent), _task(task), _runningThreads(0),
-      _queryTimer(new QTimer(this)) {
+    : QObject(parent), _task(task), _queryTimer(new QTimer(this)),
+      _numActiveTasks(0) {
   applyTask();
   QObject::connect(_queryTimer, &QTimer::timeout, this,
                    &FileScheduler::onTimer);
@@ -29,6 +29,12 @@ FileScheduler::Task FileScheduler::getTask() const { return _task; }
 
 void FileScheduler::processQuery() {
   QMutexLocker lock(&_taskAccessMutex);
+  QMutexLocker lockPending{&_pendingModifierTasksAccessMutex};
+
+  if (!_pendingModifierTasks.isEmpty()) {
+    emit showUserInfo("Still have pending tasks");
+    return;
+  }
 
   QDir fromDir(_task._fromDirectory);
   if (!fromDir.exists()) {
@@ -55,9 +61,6 @@ void FileScheduler::processQuery() {
   while (it.hasNext()) {
     it.next();
     QString inputFilePath = it.filePath();
-    if (_activeFiles.contains(inputFilePath)) {
-      continue; // File is already being processed, pass
-    }
 
     auto inputFileInfo = it.fileInfo();
     QString fileName = inputFileInfo.fileName();
@@ -97,7 +100,17 @@ void FileScheduler::processQuery() {
     modifierTask._chunkSizeBytes = _task._chunkSizeBytes;
     modifierTask._deleteOnModify = _task._deleteOnModify;
 
-    scheduleModifier(modifierTask);
+    {
+      _pendingModifierTasks.push_back(modifierTask);
+    }
+  }
+  {
+    while ((!_pendingModifierTasks.isEmpty()) &&
+           (_numActiveTasks <= _task._maxconcurrentProcesses)) {
+      auto nextTask = _pendingModifierTasks.front();
+      _pendingModifierTasks.pop_front();
+      scheduleModifier(nextTask);
+    }
   }
 }
 
@@ -136,8 +149,20 @@ void FileScheduler::onModifierProgress(const FileModifier::Progress &progress) {
 }
 
 void FileScheduler::onModifierFinished(const FileModifier::Progress &progress) {
-  --_runningThreads;
+  --_numActiveTasks;
   emit showUserInfo(progress._info);
+
+  // Schedule next task if needed
+  {
+    QMutexLocker pendingLocker{&_pendingModifierTasksAccessMutex};
+    QMutexLocker taskLocker{&_taskAccessMutex};
+    if (!_pendingModifierTasks.isEmpty() &&
+        _numActiveTasks <= _task._maxconcurrentProcesses) {
+      auto nextTask = _pendingModifierTasks.front();
+      _pendingModifierTasks.pop_front();
+      scheduleModifier(nextTask);
+    }
+  }
 }
 
 void FileScheduler::scheduleModifier(const FileModifier::Task &task) {
@@ -160,7 +185,7 @@ void FileScheduler::scheduleModifier(const FileModifier::Task &task) {
                    &FileScheduler::onModifierFinished);
   QObject::connect(worker, &FileModifier::progress, this,
                    &FileScheduler::onModifierProgress);
+  ++_numActiveTasks;
 
-  ++_runningThreads;
   workerThread->start();
 }

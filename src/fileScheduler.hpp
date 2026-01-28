@@ -5,6 +5,7 @@
 #include <QSet>
 #include <QTimer>
 #include <chrono>
+#include <qatomic.h>
 #include <qobject.h>
 #include <qstringview.h>
 #include <qtmetamacros.h>
@@ -42,8 +43,9 @@ private:
   Task _task;
   QMutex _taskAccessMutex;
   QTimer *_queryTimer;
-  int _runningThreads;
-  QSet<QString> _activeFiles;
+  QVector<FileModifier::Task> _pendingModifierTasks;
+  QMutex _pendingModifierTasksAccessMutex;
+  QAtomicInt _numActiveTasks{0};
 
 private slots:
   void onTimer();
