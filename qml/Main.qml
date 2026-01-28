@@ -23,60 +23,88 @@ ApplicationWindow {
             Layout.fillHeight: true
             spacing: 8
 
-            TextField {
-                Layout.fillWidth: true
-                placeholderText: "Input directory"
-                text: AppController.inputDir
-                onTextChanged: AppController.inputDir = text
-            }
-
-            TextField {
-                Layout.fillWidth: true
-                placeholderText: "Output directory"
-                text: AppController.outputDir
-                onTextChanged: AppController.outputDir = text
-            }
-
-            TextField {
-                placeholderText: "File mask (e.g. *.bin;*.txt)"
-                Layout.fillWidth: true
-                text: AppController.fileMask
-                onTextChanged: AppController.fileMask = text
-            }
-
-            TextField {
-                placeholderText: "XOR key (8 bytes hex, e.g. 0011223344556677)"
-                Layout.fillWidth: true
-                text: AppController.byteMask
-                onTextChanged: AppController.byteMask = text
-            }
-
-            TextField {
-                placeholderText: "query interval ms"
-                Layout.fillWidth: true
-                text: AppController.queryIntervalMs.toString()
-                onTextChanged: AppController.queryIntervalMs = parseInt(text)
+            RowLayout {
+                Text {
+                    text: "Input dir"
+                }
+                TextField {
+                    Layout.fillWidth: true
+                    placeholderText: "(e.g ./input)"
+                    text: AppController.inputDir
+                    onTextChanged: AppController.inputDir = text
+                }
             }
 
             RowLayout {
+                Text {
+                    text: "Output dir:"
+                }
+                TextField {
+                    Layout.fillWidth: true
+                    placeholderText: "(e.g ./input)"
+                    text: AppController.outputDir
+                    onTextChanged: AppController.outputDir = text
+                }
+            }
+
+            RowLayout {
+                Text {
+                    text: "File mask:"
+                }
+                TextField {
+                    placeholderText: "(e.g. *.bin;*.txt)"
+                    Layout.fillWidth: true
+                    text: AppController.fileMask
+                    onTextChanged: AppController.fileMask = text
+                }
+            }
+
+            RowLayout {
+                Text {
+                    text: "Byte mask:"
+                }
+                TextField {
+                    placeholderText: "XOR key (8 bytes hex, e.g. 0011223344556677)"
+                    Layout.fillWidth: true
+                    text: AppController.byteMask
+                    onTextChanged: AppController.byteMask = text
+                }
+            }
+
+            RowLayout {
+                Text {
+                    text: "Query interval, ms:"
+                }
+                TextField {
+                    placeholderText: "(e.g. 1000)"
+                    Layout.fillWidth: true
+                    text: AppController.queryIntervalMs.toString()
+                    onTextChanged: AppController.queryIntervalMs = parseInt(text)
+                }
+            }
+
+            RowLayout {
+                Text {
+                    text: "Single shot:"
+                }
                 Switch {
                     checked: AppController.singleShot
                     onCheckedChanged: AppController.singleShot = checked
                 }
-                Text {
-                    text: "single shot"
-                }
             }
             RowLayout {
+                Text {
+                    text: "Delete on modify:"
+                }
                 Switch {
                     checked: AppController.deleteOnModify
                     onCheckedChanged: AppController.deleteOnModify = checked
                 }
-                Text {
-                    text: "delete on modify"
-                }
             }
             RowLayout {
+                Text {
+                    text: "File repeat policy:"
+                }
                 ComboBox {
                     model: [
                         {
@@ -97,9 +125,6 @@ ApplicationWindow {
                     valueRole: "value"
 
                     onActivated: AppController.repeatAction = currentValue
-                }
-                Text {
-                    text: "file repeat policy"
                 }
             }
 

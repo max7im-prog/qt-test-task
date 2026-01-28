@@ -73,7 +73,7 @@ private:
   QString _inputDir{"./input"};
   QString _outputDir{"./output"};
   QString _fileMask{"*.txt"};
-  QString _byteMask{""};
+  QString _byteMask{"0011223344556677"};
   int _queryIntervalMs{1000};
   bool _singleShot{false};
   QString _log{""};
