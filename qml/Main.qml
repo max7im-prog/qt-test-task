@@ -1,7 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import custom.AppController
+import custom.AppController 1.0
+import custom.FileScheduler 1.0
 
 ApplicationWindow {
     id: root
@@ -48,6 +49,58 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 // text: AppController.byteMask
                 onTextChanged: AppController.byteMask = text
+            }
+
+            TextField {
+                placeholderText: "query interval ms"
+                Layout.fillWidth: true
+                text: AppController.queryIntervalMs.toString()
+                onTextChanged: AppController.queryIntervalMs = parseInt(text)
+            }
+
+            RowLayout {
+                Switch {
+                    checked: AppController.singleShot
+                    onCheckedChanged: AppController.singleShot = checked
+                }
+                Text {
+                    text: "single shot"
+                }
+            }
+            RowLayout {
+                Switch {
+                    checked: AppController.deleteOnModify
+                    onCheckedChanged: AppController.deleteOnModify = checked
+                }
+                Text {
+                    text: "delete on modify"
+                }
+            }
+            RowLayout {
+                ComboBox {
+                    model: [
+                        {
+                            value: FileScheduler.Overwrite,
+                            text: qsTr("Overwrite")
+                        },
+                        {
+                            value: FileScheduler.Pass,
+                            text: qsTr("Pass")
+                        },
+                        {
+                            value: FileScheduler.Copy,
+                            text: qsTr("Copy")
+                        }
+                    ]
+
+                    textRole: "text"
+                    valueRole: "value"
+
+                    onActivated: AppController.repeatAction = currentValue
+                }
+                Text {
+                    text: "file repeat policy"
+                }
             }
 
             RowLayout {

@@ -1,6 +1,7 @@
 #pragma once
 #include "fileScheduler.hpp"
 #include <chrono>
+#include <qdir.h>
 #include <qobject.h>
 #include <qtmetamacros.h>
 
@@ -21,6 +22,10 @@ class AppController : public QObject {
                  setQueryIntervalMs NOTIFY queryIntervalMsChanged)
   Q_PROPERTY(bool singleShot READ getSingleShot WRITE setSingleShot NOTIFY
                  singleShotChanged)
+  Q_PROPERTY(bool deleteOnModify READ getDeleteOnModify WRITE setDeleteOnModify
+                 NOTIFY deleteOnModifyChanged)
+  Q_PROPERTY(FileScheduler::FileRepeatAction repeatAction READ getRepeatAction
+                 WRITE setRepeatAction NOTIFY repeatActionChanged)
 
 public:
   explicit AppController(QObject *parent = nullptr);
@@ -36,6 +41,8 @@ public:
   int getQueryIntervalMs() const;
   bool getSingleShot() const;
   const QString &getLog() const;
+  bool getDeleteOnModify() const;
+  FileScheduler::FileRepeatAction getRepeatAction();
 
   void setStatus(const QString &param);
   void setInputDir(const QString &param);
@@ -45,6 +52,8 @@ public:
   void setQueryIntervalMs(int param);
   void setSingleShot(bool param);
   void appendLog(const QString &msg);
+  void setDeleteOnModify(bool param);
+  void setRepeatAction(FileScheduler::FileRepeatAction param);
 
 signals:
   void logChanged();
@@ -55,15 +64,20 @@ signals:
   void byteMaskChanged();
   void queryIntervalMsChanged();
   void singleShotChanged();
+  void deleteOnModifyChanged();
+  void repeatActionChanged();
 
 private:
   FileScheduler _scheduler;
-  QString _status = "";
-  QString _inputDir = "./input";
-  QString _outputDir = "./output";
-  QString _fileMask = "*.txt";
-  QByteArray _byteMask = QByteArray::fromHex("");
-  int _queryIntervalMs = 1000;
-  bool _singleShot = false;
-  QString _log = "";
+  QString _status{""};
+  QString _inputDir{"./input"};
+  QString _outputDir{"./output"};
+  QString _fileMask{"*.txt"};
+  QByteArray _byteMask{QByteArray::fromHex("")};
+  int _queryIntervalMs{1000};
+  bool _singleShot{false};
+  QString _log{""};
+  FileScheduler::FileRepeatAction _fileRepeatAction{
+      FileScheduler::FileRepeatAction::Copy};
+  bool _deleteOnModify{false};
 };

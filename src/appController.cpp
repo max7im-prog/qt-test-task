@@ -17,9 +17,8 @@ AppController::AppController(QObject *parent)
 void AppController::start() {
   qInfo().noquote() << "lol" << "\n";
   FileScheduler::Task task;
-  task._fileRepeatAction =
-      FileScheduler::Task::FileRepeatAction::Copy; // TODO: change to one that
-                                                   // was read from GUI
+  task._fileRepeatAction = _fileRepeatAction; // TODO: change to one that
+                                              // was read from GUI
   task._fromDirectory = _inputDir;
   task._toDirectory = _outputDir;
   task._byteMask = _byteMask;
@@ -29,6 +28,7 @@ void AppController::start() {
   task._inputFileMask = _fileMask;
   task._run = true;
   task._singleShot = _singleShot;
+  task._deleteOnModify = _deleteOnModify;
   _scheduler.setTask(task);
 }
 
@@ -104,4 +104,20 @@ void AppController::setSingleShot(bool param) {
 void AppController::appendLog(const QString &msg) {
   _log += (msg + "\n");
   emit logChanged();
+}
+
+bool AppController::getDeleteOnModify() const { return _deleteOnModify; }
+
+void AppController::setDeleteOnModify(bool param) {
+  _deleteOnModify = param;
+  emit deleteOnModifyChanged();
+}
+
+void AppController::setRepeatAction(FileScheduler::FileRepeatAction param) {
+  _fileRepeatAction = param;
+  emit repeatActionChanged();
+}
+
+FileScheduler::FileRepeatAction AppController::getRepeatAction() {
+  return _fileRepeatAction;
 }

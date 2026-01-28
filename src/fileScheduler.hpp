@@ -13,17 +13,18 @@ class FileScheduler : public QObject {
   Q_OBJECT
 
 public:
+  enum class FileRepeatAction { Overwrite, Pass, Copy };
+  Q_ENUM(FileRepeatAction)
+
   struct Task {
     bool _run = false;
+    bool _deleteOnModify = false;
     QByteArray _byteMask = QByteArray::fromHex("0011223344556677");
     QString _inputFileMask = "";
     QString _fromDirectory = "";
     QString _toDirectory = "";
-    enum class FileRepeatAction {
-      Overwrite,
-      Pass,
-      Copy
-    } _fileRepeatAction = FileRepeatAction::Copy;
+    FileRepeatAction _fileRepeatAction = FileRepeatAction::Copy;
+
     std::chrono::milliseconds _queryInterval = std::chrono::milliseconds{1000};
     bool _singleShot = true;
     int _maxconcurrentProcesses = 10;

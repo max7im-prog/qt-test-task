@@ -66,8 +66,8 @@ void FileScheduler::processQuery() {
     // Solve file conflicts
     if (QFile::exists(outputFilePath)) {
       switch (_task._fileRepeatAction) {
-      case FileScheduler::Task::FileRepeatAction::Copy: { // Add a counter to
-                                                          // the file name
+      case FileScheduler::FileRepeatAction::Copy: { // Add a counter to
+                                                    // the file name
         int counter = 1;
         QString basename = inputFileInfo.completeBaseName();
         QString ext = inputFileInfo.suffix();
@@ -78,12 +78,12 @@ void FileScheduler::processQuery() {
         } while (QFile::exists(outputFilePath));
         break;
       }
-      case FileScheduler::Task::FileRepeatAction::Pass: { // Move to the next
-                                                          // iteration
+      case FileScheduler::FileRepeatAction::Pass: { // Move to the next
+                                                    // iteration
         continue;
         break;
       }
-      case FileScheduler::Task::FileRepeatAction::Overwrite: { // Just overwrite
+      case FileScheduler::FileRepeatAction::Overwrite: { // Just overwrite
         break;
       }
       }

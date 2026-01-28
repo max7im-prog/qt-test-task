@@ -11,6 +11,8 @@ int main(int argc, char *argv[]) {
   qmlRegisterSingletonInstance("custom.AppController", 1, 0, "AppController",
                                controller);
 
+  qmlRegisterType<FileScheduler>("custom.FileScheduler", 1, 0, "FileScheduler");
+
   QQmlApplicationEngine engine;
   engine.loadFromModule("App", "Main");
 
