@@ -31,6 +31,9 @@ AppController::AppController(QObject *parent)
       &_scheduler, &FileScheduler::finishedTask, this,
       [this](const FileModifier::Progress &progress) {
         _taskModel->finishTask(progress._taskName);
+        QTimer::singleShot(1000, [this, name = progress._taskName]() {
+          _taskModel->removeTask(name);
+        });
       },
       Qt::QueuedConnection);
 }

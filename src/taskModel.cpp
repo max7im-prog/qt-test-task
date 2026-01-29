@@ -32,6 +32,18 @@ QHash<int, QByteArray> TaskModel::roleNames() const {
       {NameRole, "name"}, {ProgressRole, "progress"}, {StatusRole, "status"}};
 }
 
+void TaskModel::removeTask(const QString &name) {
+  int index = findTaskIndex(name);
+  if (index == -1)
+    return;
+
+  beginRemoveRows(QModelIndex(), index, index);
+  m_tasks.removeAt(index);
+  endRemoveRows();
+
+  qInfo() << "Removed task:" << name;
+}
+
 void TaskModel::addTask(const QString &name) {
   if (findTaskIndex(name) != -1)
     return;

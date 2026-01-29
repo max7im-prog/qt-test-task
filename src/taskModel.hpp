@@ -22,6 +22,7 @@ public:
   Q_INVOKABLE void updateProgress(const QString &name, int progress,
                                   const QString &status = QString());
   Q_INVOKABLE void finishTask(const QString &name);
+  Q_INVOKABLE void removeTask(const QString &name);
   Q_INVOKABLE void clear();
 
 private:
