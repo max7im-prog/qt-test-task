@@ -40,8 +40,6 @@ void TaskModel::removeTask(const QString &name) {
   beginRemoveRows(QModelIndex(), index, index);
   m_tasks.removeAt(index);
   endRemoveRows();
-
-  qInfo() << "Removed task:" << name;
 }
 
 void TaskModel::addTask(const QString &name) {
@@ -51,8 +49,6 @@ void TaskModel::addTask(const QString &name) {
   beginInsertRows(QModelIndex(), m_tasks.size(), m_tasks.size());
   m_tasks.push_back({name, 0, "Running"});
   endInsertRows();
-
-  qInfo() << "Add task:" << name;
 }
 
 void TaskModel::updateProgress(const QString &name, int progress,
@@ -80,7 +76,6 @@ void TaskModel::finishTask(const QString &name) {
 
   QModelIndex modelIndex = createIndex(index, 0);
   emit dataChanged(modelIndex, modelIndex, {ProgressRole, StatusRole});
-  qInfo() << "Finished task:" << name;
 }
 
 void TaskModel::clear() {

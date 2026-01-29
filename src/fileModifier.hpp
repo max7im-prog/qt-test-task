@@ -18,6 +18,7 @@ public:
   struct Progress {
     QString _info{""};
     QString _taskName{""};
+    QString _fileName{""};
     int _completePercent{0};
     enum class Status { InProgress, Finished, Failed } _status;
   };

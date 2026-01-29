@@ -45,6 +45,7 @@ private:
   QTimer *_queryTimer;
   QVector<FileModifier::Task> _pendingModifierTasks;
   QMutex _pendingModifierTasksAccessMutex;
+
   QAtomicInt _numActiveTasks{0};
 
 private slots:

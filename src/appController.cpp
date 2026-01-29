@@ -18,6 +18,7 @@ AppController::AppController(QObject *parent)
       _taskModel(new TaskModel(this)) {
   QObject::connect(&_scheduler, &FileScheduler::showUserInfo,
                    [&](const QString &msg) { appendLog(msg); });
+
   QObject::connect(
       &_scheduler, &FileScheduler::progressTask, this,
       [this](const FileModifier::Progress &progress) {
@@ -31,6 +32,7 @@ AppController::AppController(QObject *parent)
       &_scheduler, &FileScheduler::finishedTask, this,
       [this](const FileModifier::Progress &progress) {
         _taskModel->finishTask(progress._taskName);
+        appendLog(progress._info);
         QTimer::singleShot(1000, [this, name = progress._taskName]() {
           _taskModel->removeTask(name);
         });

@@ -56,11 +56,11 @@ void FileModifier::onProcess() {
   QByteArray fileBuffer;
   fileBuffer.resize(chunkSize);
   for (int filePos = 0; !fromFile.atEnd() && !_stopRequested;) {
-    emit progress(
-        {._info = "Progress",
-         ._taskName = _taskName,
-         ._completePercent = static_cast<int>(100 * filePos / fromFile.size()),
-         ._status = Progress::Status::InProgress});
+    emit progress({._info = "Progress",
+                   ._taskName = _taskName,
+                   ._completePercent = static_cast<int>(
+                       100.0f * static_cast<float>(filePos) / fromFile.size()),
+                   ._status = Progress::Status::InProgress});
 
     // Read data
     int bytesRead = fromFile.read(fileBuffer.data(), fileBuffer.size());

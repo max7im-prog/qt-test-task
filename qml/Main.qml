@@ -20,6 +20,7 @@ ApplicationWindow {
          * ========================= */
         ColumnLayout {
             Layout.preferredWidth: 320
+            Layout.maximumWidth: 320
             Layout.fillHeight: true
             spacing: 10
 
@@ -99,8 +100,9 @@ ApplicationWindow {
                         SpinBox {
                             Layout.fillWidth: true
                             from: 100
-                            to: 60000
+                            to: 9999999
                             stepSize: 100
+                            editable: true
                             value: AppController.queryIntervalMs
                             onValueChanged: AppController.queryIntervalMs = value
                         }
@@ -146,8 +148,11 @@ ApplicationWindow {
                             Layout.fillWidth: true
                             textRole: "text"
                             valueRole: "value"
-
                             model: [
+                                {
+                                    text: "Copy",
+                                    value: FileScheduler.Copy
+                                },
                                 {
                                     text: "Pass",
                                     value: FileScheduler.Pass
@@ -155,13 +160,8 @@ ApplicationWindow {
                                 {
                                     text: "Overwrite",
                                     value: FileScheduler.Overwrite
-                                },
-                                {
-                                    text: "Copy",
-                                    value: FileScheduler.Copy
                                 }
                             ]
-
                             onActivated: AppController.repeatAction = currentValue
                         }
                     }
@@ -201,46 +201,45 @@ ApplicationWindow {
             Layout.fillHeight: true
             spacing: 8
 
-            /* Task list takes all remaining vertical space */
+            Label {
+                text: "Tasks"
+            }
+
             ListView {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 clip: true
                 model: AppController.tasks
 
-                delegate: Rectangle {
+                delegate: RowLayout {
                     width: ListView.view.width
                     height: 36
-                    color: index % 2 === 0 ? "#00000000" : "#08000000"
+                    spacing: 8
 
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: 6
-                        spacing: 8
+                    Label {
+                        text: name
+                        Layout.preferredWidth: 200
+                        Layout.maximumWidth: 300
+                        elide: Text.ElideMiddle
+                        horizontalAlignment: Text.AlignLeft
+                    }
 
-                        Label {
-                            text: name
-                            width: 220
-                            elide: Text.ElideMiddle
-                        }
+                    ProgressBar {
+                        Layout.fillWidth: true
+                        from: 0
+                        to: 100
+                        value: progress
+                    }
 
-                        ProgressBar {
-                            Layout.fillWidth: true
-                            from: 0
-                            to: 100
-                            value: progress
-                        }
-
-                        Label {
-                            text: status
-                            width: 80
-                            horizontalAlignment: Text.AlignRight
-                        }
+                    Label {
+                        text: status
+                        Layout.preferredWidth: 80
+                        Layout.minimumWidth: 80
+                        horizontalAlignment: Text.AlignRight
                     }
                 }
             }
 
-            /* Logs area with fixed height */
             Label {
                 text: "Logs"
                 font.bold: true
@@ -248,12 +247,13 @@ ApplicationWindow {
 
             ScrollView {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 160  // fixed log height
+                Layout.preferredHeight: 160
 
                 TextArea {
                     readOnly: true
                     wrapMode: Text.Wrap
                     text: AppController.log
+                    onTextChanged: cursorPosition = length
                 }
             }
         }

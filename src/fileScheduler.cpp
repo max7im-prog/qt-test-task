@@ -65,6 +65,8 @@ void FileScheduler::processQuery() {
     QString fileName = inputFileInfo.fileName();
     QString outputFilePath = toDir.filePath(inputFileInfo.fileName());
 
+    bool processFile = true;
+
     // Solve file conflicts
     if (QFile::exists(outputFilePath)) {
       switch (_task._fileRepeatAction) {
@@ -82,13 +84,17 @@ void FileScheduler::processQuery() {
       }
       case FileScheduler::FileRepeatAction::Pass: { // Move to the next
                                                     // iteration
-        continue;
+
+        processFile = false;
         break;
       }
       case FileScheduler::FileRepeatAction::Overwrite: { // Just overwrite
         break;
       }
       }
+    }
+    if (!processFile) {
+      continue;
     }
 
     // Prepare FileModifier task
@@ -139,12 +145,12 @@ void FileScheduler::onTimer() { processQuery(); }
 
 void FileScheduler::onModifierProgress(const FileModifier::Progress &progress) {
   emit progressTask(progress);
-  emit showUserInfo(progress._info);
+  // emit showUserInfo(progress._info);
 }
 
 void FileScheduler::onModifierFinished(const FileModifier::Progress &progress) {
   --_numActiveTasks;
-  emit showUserInfo(progress._info);
+  // emit showUserInfo(progress._info);
   emit finishedTask(progress);
 
   // Schedule next task if needed
