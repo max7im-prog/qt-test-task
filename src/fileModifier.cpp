@@ -1,6 +1,5 @@
 #include "fileModifier.hpp"
 #include <QDir>
-#include <fstream>
 #include <qdebug.h>
 #include <qobject.h>
 
@@ -10,32 +9,44 @@ static constexpr int s_maxChunkSizeBytes = 1024 * 1024; // 1 MB
 } // namespace
 
 FileModifier::FileModifier(const Task &task, QObject *parent)
-    : QObject(parent), _task(task), _stopRequested(false) {}
+    : QObject(parent), _task(task), _stopRequested(false),
+      _taskName(_task._fromPath) {}
 
 void FileModifier::requestStop() { _stopRequested = true; }
 
 void FileModifier::onProcess() {
 
-  qInfo().noquote() << "processing" << "\n";
-  emit progress({._info = "Started modifier"});
+  emit progress({._info = "Started modifier",
+                 ._taskName = _taskName,
+                 ._completePercent = 0,
+                 ._status = Progress::Status::InProgress});
 
   QFile fromFile(_task._fromPath);
   QFile toFile(_task._toPath);
 
   if (!fromFile.open(QIODevice::ReadOnly)) {
-    emit finished({._info = "Failed to open input file: " + _task._fromPath});
+    emit finished({._info = "Failed to open input file: " + _task._fromPath,
+                   ._taskName = _taskName,
+                   ._completePercent = 0,
+                   ._status = Progress::Status::Failed});
     return;
   }
 
   if (!toFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-    emit finished({._info = "Failed to open output file: " + _task._toPath});
+    emit finished({._info = "Failed to open output file: " + _task._toPath,
+                   ._taskName = _taskName,
+                   ._completePercent = 0,
+                   ._status = Progress::Status::Failed});
     return;
   }
 
   if (_task._byteMask.size() != 8) {
     emit finished({._info = "Byte mask of size " +
                             QString::number(_task._byteMask.size()) +
-                            ", 8 required"});
+                            ", 8 required",
+                   ._taskName = _taskName,
+                   ._completePercent = 0,
+                   ._status = Progress::Status::Failed});
     return;
   }
 
@@ -45,6 +56,11 @@ void FileModifier::onProcess() {
   QByteArray fileBuffer;
   fileBuffer.resize(chunkSize);
   for (int filePos = 0; !fromFile.atEnd() && !_stopRequested;) {
+    emit progress(
+        {._info = "Progress",
+         ._taskName = _taskName,
+         ._completePercent = static_cast<int>(100 * filePos / fromFile.size()),
+         ._status = Progress::Status::InProgress});
 
     // Read data
     int bytesRead = fromFile.read(fileBuffer.data(), fileBuffer.size());
@@ -60,7 +76,6 @@ void FileModifier::onProcess() {
   }
 
   if (_task._deleteOnModify) {
-    qInfo().noquote() << "deleting " << _task._fromPath << "\n";
     fromFile.close();
     if (fromFile.exists()) {
 
@@ -68,5 +83,8 @@ void FileModifier::onProcess() {
     }
   }
   emit finished(
-      {._info = "Modified " + _task._fromPath + " >> " + _task._toPath});
+      {._info = "Modified " + _task._fromPath + " >> " + _task._toPath,
+       ._taskName = _taskName,
+       ._completePercent = 100,
+       ._status = Progress::Status::Finished});
 }

@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import custom.AppController 1.0
 import custom.FileScheduler 1.0
+import custom.TaskModel 1.0
 
 ApplicationWindow {
     id: root
@@ -158,7 +159,22 @@ ApplicationWindow {
         ColumnLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-
+            ListView {
+                model: AppController.tasks
+                delegate: RowLayout {
+                    Label {
+                        text: name
+                        width: 160
+                    }
+                    ProgressBar {
+                        Layout.fillWidth: true
+                        value: progress
+                    }
+                    Label {
+                        text: status
+                    }
+                }
+            }
             Label {
                 text: "Logs"
             }
@@ -172,6 +188,7 @@ ApplicationWindow {
                     readOnly: true
                     wrapMode: Text.Wrap
                     text: AppController.log
+                    onTextChanged: cursorPosition = length
                 }
             }
         }

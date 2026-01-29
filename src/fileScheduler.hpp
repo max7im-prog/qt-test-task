@@ -56,4 +56,6 @@ public slots:
 
 signals:
   void showUserInfo(const QString &info);
+  void finishedTask(const FileModifier::Progress &progress);
+  void progressTask(const FileModifier::Progress &progress);
 };

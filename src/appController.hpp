@@ -1,5 +1,6 @@
 #pragma once
 #include "fileScheduler.hpp"
+#include "taskModel.hpp"
 #include <chrono>
 #include <qdir.h>
 #include <qobject.h>
@@ -10,6 +11,8 @@ class AppController : public QObject {
 
   Q_PROPERTY(QString status READ getStatus WRITE setStatus NOTIFY statusChanged)
   Q_PROPERTY(QString log READ getLog NOTIFY logChanged)
+  Q_PROPERTY(TaskModel *tasks READ getTasks CONSTANT)
+
   Q_PROPERTY(QString inputDir READ getInputDir WRITE setInputDir NOTIFY
                  inputDirChanged)
   Q_PROPERTY(QString outputDir READ getOutputDir WRITE setOutputDir NOTIFY
@@ -43,6 +46,7 @@ public:
   const QString &getLog() const;
   bool getDeleteOnModify() const;
   FileScheduler::FileRepeatAction getRepeatAction();
+  TaskModel *getTasks();
 
   void setStatus(const QString &param);
   void setInputDir(const QString &param);
@@ -80,4 +84,6 @@ private:
   FileScheduler::FileRepeatAction _fileRepeatAction{
       FileScheduler::FileRepeatAction::Copy};
   bool _deleteOnModify{false};
+
+  TaskModel _taskModel;
 };

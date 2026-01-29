@@ -1,5 +1,6 @@
 #include "appController.hpp"
 #include "fileScheduler.hpp"
+#include "src/fileModifier.hpp"
 #include <QRegularExpression>
 #include <chrono>
 #include <qlogging.h>
@@ -10,9 +11,22 @@ static constexpr int s_defaultMaxConcurrentProcesses = 10;
 } // namespace
 
 AppController::AppController(QObject *parent)
-    : QObject(parent), _scheduler(FileScheduler::Task{._run = false}) {
+    : QObject(parent), _scheduler(FileScheduler::Task{._run = false}),
+      _taskModel(this) {
+  _taskModel.setParent(this);
   QObject::connect(&_scheduler, &FileScheduler::showUserInfo,
                    [&](const QString &msg) { appendLog(msg); });
+  QObject::connect(&_scheduler, &FileScheduler::progressTask, this,
+                   [this](const FileModifier::Progress &progress) {
+                     _taskModel.addTask(progress._taskName);
+                     _taskModel.updateProgress(progress._taskName,
+                                               progress._completePercent);
+                   });
+
+  QObject::connect(&_scheduler, &FileScheduler::finishedTask, this,
+                   [this](const FileModifier::Progress &progress) {
+                     // _taskModel.finishTask(progress._taskName);
+                   });
 }
 
 void AppController::start() {
@@ -100,7 +114,16 @@ void AppController::setSingleShot(bool param) {
 }
 
 void AppController::appendLog(const QString &msg) {
-  _log += (msg + "\n");
+  static constexpr int MaxLines = 100;
+
+  QStringList lines = _log.split('\n', Qt::SkipEmptyParts);
+  lines.append(msg);
+
+  while (lines.size() > MaxLines) {
+    lines.removeFirst();
+  }
+
+  _log = lines.join('\n') + '\n';
   emit logChanged();
 }
 
@@ -119,3 +142,5 @@ void AppController::setRepeatAction(FileScheduler::FileRepeatAction param) {
 FileScheduler::FileRepeatAction AppController::getRepeatAction() {
   return _fileRepeatAction;
 }
+
+TaskModel *AppController::getTasks() { return &_taskModel; }

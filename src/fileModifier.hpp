@@ -16,7 +16,10 @@ public:
   };
 
   struct Progress {
-    QString _info;
+    QString _info{""};
+    QString _taskName{""};
+    int _completePercent{0};
+    enum class Status { InProgress, Finished, Failed } _status;
   };
 
   explicit FileModifier(const Task &task, QObject *parent = nullptr);
@@ -24,7 +27,9 @@ public:
 
 private:
   const Task _task;
+  const QString _taskName;
   std::atomic<bool> _stopRequested;
+
 public slots:
   void onProcess();
 signals:

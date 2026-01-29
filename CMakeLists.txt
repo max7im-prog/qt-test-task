@@ -15,8 +15,14 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick)
 
 qt_standard_project_setup()
 
-qt_add_executable(qt-test-task src/main.cpp src/fileModifier.cpp
-                  src/fileScheduler.cpp src/appController.cpp)
+qt_add_executable(
+  qt-test-task
+  src/main.cpp
+  src/fileModifier.cpp
+  src/fileScheduler.cpp
+  src/appController.cpp
+  src/taskModel.hpp
+  src/taskModel.cpp)
 
 qt_add_qml_module(
   qt-test-task

@@ -22,7 +22,6 @@ void FileScheduler::setTask(const Task &task) {
     _task = task;
   }
   applyTask();
-  qInfo().noquote() << "set task" << "\n";
 }
 
 FileScheduler::Task FileScheduler::getTask() const { return _task; }
@@ -133,24 +132,20 @@ void FileScheduler::applyTask() {
 
   if (_task._run) {
     _queryTimer->start();
-    qInfo().noquote() << "started timer\n";
   }
 }
 
-void FileScheduler::onTimer() {
-
-  qInfo().noquote() << "timer fired, querying\n";
-
-  processQuery();
-}
+void FileScheduler::onTimer() { processQuery(); }
 
 void FileScheduler::onModifierProgress(const FileModifier::Progress &progress) {
+  emit progressTask(progress);
   emit showUserInfo(progress._info);
 }
 
 void FileScheduler::onModifierFinished(const FileModifier::Progress &progress) {
   --_numActiveTasks;
   emit showUserInfo(progress._info);
+  emit finishedTask(progress);
 
   // Schedule next task if needed
   {

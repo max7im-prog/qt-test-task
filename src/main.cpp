@@ -12,6 +12,7 @@ int main(int argc, char *argv[]) {
                                controller);
 
   qmlRegisterType<FileScheduler>("custom.FileScheduler", 1, 0, "FileScheduler");
+  qmlRegisterType<TaskModel>("custom.TaskModel", 1, 0, "TaskModel");
 
   QQmlApplicationEngine engine;
   engine.loadFromModule("App", "Main");
