@@ -156,39 +156,55 @@ ApplicationWindow {
             }
         }
 
-        ColumnLayout {
+        SplitView {
+            orientation: Qt.Vertical
             Layout.fillWidth: true
             Layout.fillHeight: true
+
             ListView {
                 model: AppController.tasks
+                clip: true
+
                 delegate: RowLayout {
+                    width: ListView.view.width
+                    spacing: 8
+
                     Label {
                         text: name
-                        width: 160
+                        width: 200
+                        elide: Text.ElideMiddle
                     }
+
                     ProgressBar {
                         Layout.fillWidth: true
+                        from: 0
+                        to: 100
                         value: progress
                     }
+
                     Label {
                         text: status
+                        width: 80
+                        horizontalAlignment: Text.AlignRight
                     }
                 }
             }
-            Label {
-                text: "Logs"
-            }
 
-            ScrollView {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+            ColumnLayout {
+                Label {
+                    text: "Logs"
+                    font.bold: true
+                }
 
-                TextArea {
-                    id: logArea
-                    readOnly: true
-                    wrapMode: Text.Wrap
-                    text: AppController.log
-                    onTextChanged: cursorPosition = length
+                ScrollView {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    TextArea {
+                        readOnly: true
+                        wrapMode: Text.Wrap
+                        text: AppController.log
+                    }
                 }
             }
         }

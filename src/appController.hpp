@@ -85,5 +85,5 @@ private:
       FileScheduler::FileRepeatAction::Copy};
   bool _deleteOnModify{false};
 
-  TaskModel _taskModel;
+  TaskModel *const _taskModel;
 };

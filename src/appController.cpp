@@ -3,7 +3,10 @@
 #include "src/fileModifier.hpp"
 #include <QRegularExpression>
 #include <chrono>
+#include <qguiapplication.h>
 #include <qlogging.h>
+#include <qnamespace.h>
+#include <qthread.h>
 
 namespace {
 static constexpr int s_defaultChunkSizeBytes = 1024 * 256; // 256 kb
@@ -12,21 +15,24 @@ static constexpr int s_defaultMaxConcurrentProcesses = 10;
 
 AppController::AppController(QObject *parent)
     : QObject(parent), _scheduler(FileScheduler::Task{._run = false}),
-      _taskModel(this) {
-  _taskModel.setParent(this);
+      _taskModel(new TaskModel(this)) {
   QObject::connect(&_scheduler, &FileScheduler::showUserInfo,
                    [&](const QString &msg) { appendLog(msg); });
-  QObject::connect(&_scheduler, &FileScheduler::progressTask, this,
-                   [this](const FileModifier::Progress &progress) {
-                     _taskModel.addTask(progress._taskName);
-                     _taskModel.updateProgress(progress._taskName,
-                                               progress._completePercent);
-                   });
+  QObject::connect(
+      &_scheduler, &FileScheduler::progressTask, this,
+      [this](const FileModifier::Progress &progress) {
+        _taskModel->addTask(progress._taskName);
+        _taskModel->updateProgress(progress._taskName,
+                                   progress._completePercent);
+      },
+      Qt::QueuedConnection);
 
-  QObject::connect(&_scheduler, &FileScheduler::finishedTask, this,
-                   [this](const FileModifier::Progress &progress) {
-                     // _taskModel.finishTask(progress._taskName);
-                   });
+  QObject::connect(
+      &_scheduler, &FileScheduler::finishedTask, this,
+      [this](const FileModifier::Progress &progress) {
+        // _taskModel.finishTask(progress._taskName);
+      },
+      Qt::QueuedConnection);
 }
 
 void AppController::start() {
@@ -143,4 +149,4 @@ FileScheduler::FileRepeatAction AppController::getRepeatAction() {
   return _fileRepeatAction;
 }
 
-TaskModel *AppController::getTasks() { return &_taskModel; }
+TaskModel *AppController::getTasks() { return _taskModel; }
