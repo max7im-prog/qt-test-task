@@ -30,7 +30,7 @@ AppController::AppController(QObject *parent)
   QObject::connect(
       &_scheduler, &FileScheduler::finishedTask, this,
       [this](const FileModifier::Progress &progress) {
-        // _taskModel.finishTask(progress._taskName);
+        _taskModel->finishTask(progress._taskName);
       },
       Qt::QueuedConnection);
 }
