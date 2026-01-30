@@ -22,7 +22,7 @@ g) значение 8 байт для бинарной операции моди
 Среда разработки QT Creator, язык программирования С++, операционная система Windows, компилятор MinGW.
 Результат работы должен содержать .pro или CMakeLists.txt файл обязательно.
 
-## build
+## Build
 
 ```bash
 git clone https://github.com/max7im-prog/qt-test-task
