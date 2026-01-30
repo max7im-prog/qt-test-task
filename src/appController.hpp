@@ -29,6 +29,8 @@ class AppController : public QObject {
                  NOTIFY deleteOnModifyChanged)
   Q_PROPERTY(FileScheduler::FileRepeatAction repeatAction READ getRepeatAction
                  WRITE setRepeatAction NOTIFY repeatActionChanged)
+  Q_PROPERTY(
+      bool running READ getRunning WRITE setRunning NOTIFY runningChanged)
 
 public:
   explicit AppController(QObject *parent = nullptr);
@@ -45,8 +47,9 @@ public:
   bool getSingleShot() const;
   const QString &getLog() const;
   bool getDeleteOnModify() const;
-  FileScheduler::FileRepeatAction getRepeatAction();
+  FileScheduler::FileRepeatAction getRepeatAction() const;
   TaskModel *getTasks();
+  bool getRunning() const;
 
   void setStatus(const QString &param);
   void setInputDir(const QString &param);
@@ -58,6 +61,7 @@ public:
   void appendLog(const QString &msg);
   void setDeleteOnModify(bool param);
   void setRepeatAction(FileScheduler::FileRepeatAction param);
+  void setRunning(bool param);
 
 signals:
   void logChanged();
@@ -70,10 +74,11 @@ signals:
   void singleShotChanged();
   void deleteOnModifyChanged();
   void repeatActionChanged();
+  void runningChanged();
 
 private:
   FileScheduler _scheduler;
-  QString _status{""};
+  QString _status{"Stopped"};
   QString _inputDir{"./input"};
   QString _outputDir{"./output"};
   QString _fileMask{"*.txt"};
@@ -86,4 +91,5 @@ private:
   bool _deleteOnModify{false};
 
   TaskModel *const _taskModel;
+  bool _running{false};
 };

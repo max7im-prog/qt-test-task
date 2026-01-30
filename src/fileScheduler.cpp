@@ -7,6 +7,7 @@
 #include <qcontainerfwd.h>
 #include <qlogging.h>
 #include <qmutex.h>
+#include <qnamespace.h>
 
 FileScheduler::FileScheduler(const Task &task, QObject *parent)
     : QObject(parent), _task(task), _queryTimer(new QTimer(this)),
@@ -31,7 +32,14 @@ void FileScheduler::processQuery() {
   QMutexLocker lockPending{&_pendingModifierTasksAccessMutex};
 
   if (!_pendingModifierTasks.isEmpty()) {
-    emit showUserInfo("Still have pending tasks");
+    emit showUserInfo("Still have pending tasks from previoius iteration: " +
+                      QString::number(_pendingModifierTasks.size()));
+    return;
+  }
+  if (_numActiveTasks != 0) {
+    emit showUserInfo("Still have active tasks from previoius iteration: " +
+                      QString::number(_numActiveTasks));
+
     return;
   }
 
@@ -137,7 +145,13 @@ void FileScheduler::applyTask() {
   }
 
   if (_task._run) {
+    QMutexLocker pendingLocker(&_pendingModifierTasksAccessMutex);
+    _pendingModifierTasks.clear();
     _queryTimer->start();
+  } else {
+    QMutexLocker pendingLocker(&_pendingModifierTasksAccessMutex);
+    _pendingModifierTasks.clear();
+    emit stopAll();
   }
 }
 
@@ -180,6 +194,8 @@ void FileScheduler::scheduleModifier(const FileModifier::Task &task) {
                    &QObject::deleteLater);
   QObject::connect(workerThread, &QThread::finished, workerThread,
                    &QObject::deleteLater);
+  QObject::connect(this, &FileScheduler::stopAll, worker,
+                   &FileModifier::requestStop, Qt::DirectConnection);
 
   // Translate info from workers
   QObject::connect(worker, &FileModifier::finished, this,

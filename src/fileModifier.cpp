@@ -74,6 +74,14 @@ void FileModifier::onProcess() {
     // Write data
     toFile.write(fileBuffer.constData(), bytesRead);
   }
+  if (!fromFile.atEnd()) {
+    emit finished(
+        {._info = "Aborted " + _task._fromPath + " >> " + _task._toPath,
+         ._taskName = _taskName,
+         ._completePercent = 0,
+         ._status = Progress::Status::Failed});
+    return;
+  }
 
   if (_task._deleteOnModify) {
     fromFile.close();

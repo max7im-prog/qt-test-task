@@ -41,6 +41,7 @@ ApplicationWindow {
                             placeholderText: "./input"
                             text: AppController.inputDir
                             onTextChanged: AppController.inputDir = text
+                            enabled: !AppController.running
                         }
                     }
 
@@ -54,6 +55,7 @@ ApplicationWindow {
                             placeholderText: "./output"
                             text: AppController.outputDir
                             onTextChanged: AppController.outputDir = text
+                            enabled: !AppController.running
                         }
                     }
                 }
@@ -76,6 +78,7 @@ ApplicationWindow {
                             placeholderText: "*.bin;*.txt"
                             text: AppController.fileMask
                             onTextChanged: AppController.fileMask = text
+                            enabled: !AppController.running
                         }
                     }
 
@@ -89,6 +92,7 @@ ApplicationWindow {
                             placeholderText: "0011223344556677"
                             text: AppController.byteMask
                             onTextChanged: AppController.byteMask = text
+                            enabled: !AppController.running
                         }
                     }
 
@@ -105,6 +109,7 @@ ApplicationWindow {
                             editable: true
                             value: AppController.queryIntervalMs
                             onValueChanged: AppController.queryIntervalMs = value
+                            enabled: !AppController.running
                         }
                     }
                 }
@@ -125,6 +130,7 @@ ApplicationWindow {
                         Switch {
                             checked: AppController.singleShot
                             onToggled: AppController.singleShot = checked
+                            enabled: !AppController.running
                         }
                     }
 
@@ -136,6 +142,7 @@ ApplicationWindow {
                         Switch {
                             checked: AppController.deleteOnModify
                             onToggled: AppController.deleteOnModify = checked
+                            enabled: !AppController.running
                         }
                     }
 
@@ -163,6 +170,7 @@ ApplicationWindow {
                                 }
                             ]
                             onActivated: AppController.repeatAction = currentValue
+                            enabled: !AppController.running
                         }
                     }
                 }

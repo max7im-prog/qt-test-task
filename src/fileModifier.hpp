@@ -24,7 +24,6 @@ public:
   };
 
   explicit FileModifier(const Task &task, QObject *parent = nullptr);
-  void requestStop();
 
 private:
   const Task _task;
@@ -33,6 +32,7 @@ private:
 
 public slots:
   void onProcess();
+  void requestStop();
 signals:
   void progress(const Progress &progress);
   void finished(const Progress &progress);

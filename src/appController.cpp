@@ -54,12 +54,22 @@ void AppController::start() {
   task._singleShot = _singleShot;
   task._deleteOnModify = _deleteOnModify;
   _scheduler.setTask(task);
+
+  setRunning(true);
+  if (task._singleShot) {
+    setStatus("Single execution");
+  } else {
+    setStatus("Running in " + QString::number(_queryIntervalMs) +
+              " ms intervals");
+  }
 }
 
 void AppController::stop() {
   FileScheduler::Task task{_scheduler.getTask()};
   task._run = false;
   _scheduler.setTask(task);
+  setRunning(false);
+  setStatus("Stopped");
 }
 
 const QString &AppController::getStatus() const { return _status; }
@@ -78,7 +88,10 @@ bool AppController::getSingleShot() const { return _singleShot; }
 
 const QString &AppController::getLog() const { return _log; }
 
-void AppController::setStatus(const QString &param) { _status = param; }
+void AppController::setStatus(const QString &param) {
+  _status = param;
+  emit statusChanged();
+}
 
 void AppController::setInputDir(const QString &param) {
   if (_inputDir == param)
@@ -150,8 +163,15 @@ void AppController::setRepeatAction(FileScheduler::FileRepeatAction param) {
   emit repeatActionChanged();
 }
 
-FileScheduler::FileRepeatAction AppController::getRepeatAction() {
+FileScheduler::FileRepeatAction AppController::getRepeatAction() const {
   return _fileRepeatAction;
 }
 
 TaskModel *AppController::getTasks() { return _taskModel; }
+
+bool AppController::getRunning() const { return _running; }
+
+void AppController::setRunning(bool param) {
+  _running = param;
+  emit runningChanged();
+}
